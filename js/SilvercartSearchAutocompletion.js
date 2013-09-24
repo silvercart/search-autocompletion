@@ -73,12 +73,14 @@ $(document).ready(function() {
                     var currentindex = 0;
                     autoCompleteList.html('');
                     $.each(data, function() {
-                        var displayTitle = this.Title.replace(searchTerm, '<strong>' + searchTerm + '</strong>');
-                        displayTitle = displayTitle.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
-                        displayTitle = displayTitle.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
-                        
-                        autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="title">' + displayTitle + '</span><span class="price">' + this.Price + ' ' + this.Currency + '</span></a></li>');
-                        currentindex++;
+                        if (this.Title) {
+                            var displayTitle = this.Title.replace(searchTerm, '<strong>' + searchTerm + '</strong>');
+                            displayTitle = displayTitle.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
+                            displayTitle = displayTitle.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
+
+                            autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="title">' + displayTitle + '</span><span class="price">' + this.Price + ' ' + this.Currency + '</span></a></li>');
+                            currentindex++;
+                        }
                     });
                 }
             });
