@@ -1,8 +1,19 @@
 
 $(document).ready(function() {
     
+    var currentQuickSearchRequest = false;
+    
     $('body').append('<div class="silvercart-search-autocompletion-results"><ul></ul></div>');
     $('input[name="quickSearchQuery"]').attr('autocomplete','off');
+    
+    $('input[name="quickSearchQuery"]').keydown(function(event) {
+        if (event.keyCode === 13) {
+            // enter
+            if ($('.silvercart-search-autocompletion-results ul li.active').length) {
+                event.preventDefault();
+            }
+        }
+    });
     
     $('input[name="quickSearchQuery"]').keyup(function(event) {
         
@@ -47,7 +58,10 @@ $(document).ready(function() {
         } else if (searchTerm === '') {
             autoCompleteList.html('');
         } else {
-            $.ajax({
+            if (currentQuickSearchRequest !== false) {
+                currentQuickSearchRequest.abort();
+            }
+            currentQuickSearchRequest = $.ajax({
                 url:        uri + 'silvercart_search_autocompletion/results.php',
                 dataType:   'json',
                 async:      true,
