@@ -80,15 +80,15 @@ $searchTermParts    = explode(' ', $searchTerm);
 if (count($searchTermParts) > 1) {
     $finalizedSearchTerm = sprintf(
             '
-                SPL.Title LIKE \'%%%s%%\' OR
-                SPL.Title LIKE \'%%%s%%\'',
+                SPL.Title LIKE \'%s%%\' OR
+                SPL.Title LIKE \'%s%%\'',
             $searchTerm,
             implode('%', $searchTermParts)
     );
 } else {
     $finalizedSearchTerm = sprintf(
             '
-                SPL.Title LIKE \'%%%s%%\'',
+                SPL.Title LIKE \'%s%%\'',
             $searchTerm
     );
 }
@@ -99,15 +99,16 @@ $searchQuery = sprintf(
             (
                 %s
             )
-        LIMIT 0, 20',
-        $finalizedSearchTerm
+        LIMIT 0, %s',
+        $finalizedSearchTerm,
+        SilvercartSearchAutocompletion::$resultsLimit
 );
 /* @var $result mysqli_result */
 $result = $mysqli->query($searchQuery);
 if ($result) {
     $resultArray = array();
     while ($assoc = $result->fetch_assoc()) {
-        $resultArray[$assoc['SilvercartProductID']] = array(
+        $resultArray[] = array(
             'Title'     => $assoc['Title'],
             'ID'        => $assoc['SilvercartProductID'],
             'Price'     => number_format($assoc['PriceGrossAmount'], 2, ',', '.'),
@@ -115,6 +116,10 @@ if ($result) {
         );
     }
     $result->close();
+    
+    if (count($resultArray) < SilvercartSearchAutocompletion::$resultsLimit) {
+        SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli);
+    }
     $jsonResult = json_encode($resultArray);
 }
 
@@ -122,3 +127,76 @@ $mysqli->close();
 
 print $jsonResult;
 exit();
+
+/**
+ * SilvercartSearchAutocompletion
+ * 
+ * @author Sebastian Diel <sdiel@pixeltricks.de>
+ * @copyright 2013 pixeltricks GmbH
+ * @since 28.10.2013
+ * @license none
+ */
+class SilvercartSearchAutocompletion {
+    
+    /**
+     * Results limit
+     *
+     * @var int
+     */
+    public static $resultsLimit = 20;
+
+    /**
+     * Adds additional results to $resultArray
+     * 
+     * @param array  &$resultArray Results to extend
+     * @param string $searchTerm   Search term
+     * @param mysqli $mysqli       MySQL connection
+     * 
+     * @return void
+     *
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 28.10.2013
+     */
+    public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli) {
+        $searchTermParts    = explode(' ', $searchTerm);
+        if (count($searchTermParts) > 1) {
+            $finalizedSearchTerm = sprintf(
+                    'SPL.Title LIKE \'%%%s%%\' OR
+                     SPL.Title LIKE \'%%%s%%\'',
+                    $searchTerm,
+                    implode('%', $searchTermParts)
+            );
+        } else {
+            $finalizedSearchTerm = sprintf(
+                    'SPL.Title LIKE \'%%%s%%\'',
+                    $searchTerm
+            );
+        }
+        $searchQuery = sprintf(
+                'SELECT * FROM SilvercartProduct AS SP LEFT JOIN SilvercartProductLanguage AS SPL ON (SP.ID = SPL.SilvercartProductID) WHERE 
+                    isActive = 1 AND
+                    SilvercartProductGroupID != 0 AND 
+                    (
+                        %s
+                    )
+                LIMIT 0, %s',
+                $finalizedSearchTerm,
+                self::$resultsLimit - count($resultArray)
+        );
+        
+        /* @var $result mysqli_result */
+        $result = $mysqli->query($searchQuery);
+        if ($result) {
+            while ($assoc = $result->fetch_assoc()) {
+                $resultArray[] = array(
+                    'Title'     => $assoc['Title'],
+                    'ID'        => $assoc['SilvercartProductID'],
+                    'Price'     => number_format($assoc['PriceGrossAmount'], 2, ',', '.'),
+                    'Currency'  => $assoc['PriceGrossCurrency'],
+                );
+            }
+            $result->close();
+        }
+    }
+    
+}

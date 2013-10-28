@@ -55,7 +55,7 @@ $(document).ready(function() {
                 event.preventDefault();
                 document.location.href = $('.silvercart-search-autocompletion-results ul li.active a').attr('href');
             }
-        } else if (searchTerm === '') {
+        } else if (searchTerm === '' || searchTerm.length < 3) {
             autoCompleteList.html('');
         } else {
             if (currentQuickSearchRequest !== false) {
