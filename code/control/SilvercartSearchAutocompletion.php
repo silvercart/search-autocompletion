@@ -55,10 +55,10 @@ class SilvercartSearchAutocompletion_Controller extends Controller {
     public function gotoresult(SS_HTTPRequest $request) {
         $ID = $request->param('ID');
         if (is_numeric($ID)) {
-            $products = SilvercartProduct::get('"SilvercartProduct"."ID" = \'' . $ID . '\'');
-            if ($products instanceof DataObjectSet &&
-                $products->Count() > 0) {
-                $product = $products->First();
+            $products = SilvercartProduct::getProducts('"SilvercartProduct"."ID" = \'' . $ID . '\'');
+            if ($products instanceof DataList &&
+                $products->count() > 0) {
+                $product = $products->first();
                 $this->redirect($product->Link());
             }
         }
