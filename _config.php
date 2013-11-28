@@ -23,8 +23,9 @@
  * @ignore
  */
 
-RequirementsEngine::registerThemedCssFile('SilvercartSearchAutocompletion');
+RequirementsEngine::registerThemedCssFile('SilvercartSearchAutocompletion', 'silvercart_search_autocompletion');
 RequirementsEngine::registerJsFile('silvercart_search_autocompletion/js/SilvercartSearchAutocompletion.js');
+RequirementsEngine::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\';</script>', 'SSALOCALE');
 
 Director::addRules(
         100,

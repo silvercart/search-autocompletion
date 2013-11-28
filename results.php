@@ -52,6 +52,10 @@ if (!defined('SS_DATABASE_USERNAME') ||
     user_error("SS_DATABASE_USERNAME and/or SS_DATABASE_PASSWORD is not defined.", E_WARNING);
     exit();
 }
+if (array_key_exists('locale', $_GET) &&
+    !empty($_GET['locale'])) {
+    SilvercartSearchAutocompletion::$locale = $_GET['locale'];
+}
 
 global $database;
 $databaseConfig = array(
@@ -99,8 +103,10 @@ $searchQuery = sprintf(
             (
                 %s
             )
+            AND Locale = \'%s\'
         LIMIT 0, %s',
         $finalizedSearchTerm,
+        SilvercartSearchAutocompletion::$locale,
         SilvercartSearchAutocompletion::$resultsLimit
 );
 /* @var $result mysqli_result */
@@ -146,13 +152,21 @@ class SilvercartSearchAutocompletion {
      * @var int
      */
     public static $resultsLimit = 20;
+    
+    /**
+     * Locale
+     *
+     * @var string
+     */
+    public static $locale = 'de_DE';
 
     /**
      * Adds additional results to $resultArray
      * 
-     * @param array  &$resultArray Results to extend
-     * @param string $searchTerm   Search term
-     * @param mysqli $mysqli       MySQL connection
+     * @param array  &$resultArray     Results to extend
+     * @param string $searchTerm       Search term
+     * @param mysqli $mysqli           MySQL connection
+     * @param array  $ignoreProductIDs List of product IDs to ignore
      * 
      * @return void
      *
@@ -185,9 +199,11 @@ class SilvercartSearchAutocompletion {
                     (
                         %s
                     )%s
+                AND Locale = \'%s\'
                 LIMIT 0, %s',
                 $finalizedSearchTerm,
                 $ignoreProductIDsTerm,
+                self::$locale,
                 self::$resultsLimit - count($resultArray)
         );
         

@@ -62,7 +62,7 @@ $(document).ready(function() {
                 currentQuickSearchRequest.abort();
             }
             currentQuickSearchRequest = $.ajax({
-                url:        uri + 'silvercart_search_autocompletion/results.php',
+                url:        uri + 'silvercart_search_autocompletion/results.php?locale=' + SSALOCALE,
                 dataType:   'json',
                 async:      true,
                 type:       'POST',
