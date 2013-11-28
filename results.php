@@ -107,7 +107,9 @@ $searchQuery = sprintf(
 $result = $mysqli->query($searchQuery);
 if ($result) {
     $resultArray = array();
+    $productIDs  = array();
     while ($assoc = $result->fetch_assoc()) {
+        $productIDs[]  = $assoc['SilvercartProductID'];
         $resultArray[] = array(
             'Title'     => $assoc['Title'],
             'ID'        => $assoc['SilvercartProductID'],
@@ -118,7 +120,7 @@ if ($result) {
     $result->close();
     
     if (count($resultArray) < SilvercartSearchAutocompletion::$resultsLimit) {
-        SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli);
+        SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli, $productIDs);
     }
     $jsonResult = json_encode($resultArray);
 }
@@ -157,7 +159,7 @@ class SilvercartSearchAutocompletion {
      * @author Sebastian Diel <sdiel@pixeltricks.de>
      * @since 28.10.2013
      */
-    public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli) {
+    public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli, $ignoreProductIDs) {
         $searchTermParts    = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $finalizedSearchTerm = sprintf(
@@ -172,15 +174,20 @@ class SilvercartSearchAutocompletion {
                     $searchTerm
             );
         }
+        $ignoreProductIDsTerm = '';
+        if (count($ignoreProductIDs) > 0) {
+            $ignoreProductIDsTerm = ' AND SP.ID NOT IN (' . implode(',', $ignoreProductIDs) . ')';
+        }
         $searchQuery = sprintf(
                 'SELECT * FROM SilvercartProduct AS SP LEFT JOIN SilvercartProductLanguage AS SPL ON (SP.ID = SPL.SilvercartProductID) WHERE 
                     isActive = 1 AND
                     SilvercartProductGroupID != 0 AND 
                     (
                         %s
-                    )
+                    )%s
                 LIMIT 0, %s',
                 $finalizedSearchTerm,
+                $ignoreProductIDsTerm,
                 self::$resultsLimit - count($resultArray)
         );
         
