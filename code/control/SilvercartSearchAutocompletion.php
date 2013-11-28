@@ -59,11 +59,11 @@ class SilvercartSearchAutocompletion_Controller extends Controller {
             if ($products instanceof DataObjectSet &&
                 $products->Count() > 0) {
                 $product = $products->First();
-                Director::redirect($product->Link());
+                $this->redirect($product->Link());
             }
         }
-        if (!Director::redirected_to()) {
-            Director::redirectBack();
+        if (!$this->redirectedTo()) {
+            $this->redirectBack();
         }
     }
     
