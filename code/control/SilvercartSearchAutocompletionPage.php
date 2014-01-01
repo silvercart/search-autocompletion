@@ -31,7 +31,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
  * @copyright 2013 pixeltricks GmbH
  */
-class SilvercartSearchAutocompletionPage_Controller extends DataObjectDecorator {
+class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
     
     /**
      * Adds the current locale as JavaScript variable to get the autocompletion
