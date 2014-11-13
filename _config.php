@@ -31,6 +31,6 @@ RequirementsEngine::registerJsFile('silvercart_search_autocompletion/js/Silverca
 Director::addRules(
         100,
         array(
-            'ssa/$Action/$ID' => 'SilvercartSearchAutocompletion_Controller',
+            'ssa' => 'SilvercartSearchAutocompletion_Controller',
         )
 );
