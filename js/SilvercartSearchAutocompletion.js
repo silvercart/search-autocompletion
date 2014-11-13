@@ -88,8 +88,15 @@ $(document).ready(function() {
             
     });
     
-    $('.silvercart-search-autocompletion-results ul li a').live('hover',function() {
-        $('.silvercart-search-autocompletion-results ul li.active').removeClass('active');
-    });
+    var autocompletionSelector = '.silvercart-search-autocompletion-results ul li a';
+    if (typeof $(autocompletionSelector).live === 'function') {
+        $(autocompletionSelector).live('hover', function() {
+            $('.silvercart-search-autocompletion-results ul li.active').removeClass('active');
+        });
+    } else if (typeof $(autocompletionSelector).on === 'function') {
+        $(autocompletionSelector).on('hover', function() {
+            $('.silvercart-search-autocompletion-results ul li.active').removeClass('active');
+        });
+    }
     
 });
