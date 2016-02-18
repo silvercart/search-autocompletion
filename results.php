@@ -109,6 +109,10 @@ $searchQuery = sprintf(
         SilvercartSearchAutocompletion::$locale,
         SilvercartSearchAutocompletion::$resultsLimit
 );
+
+/* Request correct charset */
+$mysqli->query('set names utf8');
+
 /* @var $result mysqli_result */
 $result = $mysqli->query($searchQuery);
 if ($result) {
@@ -124,11 +128,10 @@ if ($result) {
         );
     }
     $result->close();
-    
     if (count($resultArray) < SilvercartSearchAutocompletion::$resultsLimit) {
         SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli, $productIDs);
     }
-    $jsonResult = json_encode($resultArray);
+    $jsonResult = json_encode($resultArray); 
 }
 
 $mysqli->close();
