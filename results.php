@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2013 pixeltricks GmbH
+ * Copyright 2016 pixeltricks GmbH
  *
  * This file is part of SilverCart.
  *
@@ -111,7 +111,7 @@ $searchQuery = sprintf(
 );
 
 /* Request correct charset */
-$mysqli->query('set names utf8');
+$mysqli->query('SET NAMES utf8');
 
 /* @var $result mysqli_result */
 $result = $mysqli->query($searchQuery);
@@ -128,6 +128,8 @@ if ($result) {
         );
     }
     $result->close();
+    
+    /* if there is room for additional search results, try to find more results with a less strict query  */
     if (count($resultArray) < SilvercartSearchAutocompletion::$resultsLimit) {
         SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli, $productIDs);
     }
@@ -164,7 +166,7 @@ class SilvercartSearchAutocompletion {
     public static $locale = 'de_DE';
 
     /**
-     * Adds additional results to $resultArray
+     * Adds additional results from a less strict search to $resultArray
      * 
      * @param array  &$resultArray     Results to extend
      * @param string $searchTerm       Search term
