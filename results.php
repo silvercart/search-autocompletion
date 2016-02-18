@@ -74,7 +74,7 @@ $mysqli = new mysqli(
 );
 
 if ($mysqli->connect_errno) {
-    user_error(sprintf("Connect failed: %s", $mysqli->connect_error), E_WARNING);
+    user_error(sprintf("Connect failed: %s", $mysqli->connect_error), E_USER_WARNING);
     exit();
 }
 
