@@ -34,6 +34,20 @@
 class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
     
     /**
+     * Updates the default JS files.
+     * 
+     * @param array &$jsFiles JS files
+     * 
+     * @return void
+     *
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 11.02.2016
+     */
+    public function updatedJSRequirements(&$jsFiles) {
+        $jsFiles[] = 'silvercart_search_autocompletion/js/SilvercartSearchAutocompletion.js';
+    }
+    
+    /**
      * Adds the current locale as JavaScript variable to get the autocompletion
      * i18n context.
      * 
@@ -43,7 +57,8 @@ class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
      * @since 29.11.2013
      */
     public function onAfterInit() {
-        RequirementsEngine::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\';</script>', 'SSALOCALE');
+        Requirements::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\';</script>', 'SSALOCALE');
+        Requirements::themedCss('SilvercartSearchAutocompletion', 'silvercart_search_autocompletion');
     }
     
 }

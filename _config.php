@@ -23,10 +23,7 @@
  * @ignore
  */
 
-Object::add_extension('SilvercartPage_Controller', 'SilvercartSearchAutocompletionPage_Controller');
-
-RequirementsEngine::registerThemedCssFile('SilvercartSearchAutocompletion', 'silvercart_search_autocompletion');
-RequirementsEngine::registerJsFile('silvercart_search_autocompletion/js/SilvercartSearchAutocompletion.js');
+SilvercartPage_Controller::add_extension('SilvercartSearchAutocompletionPage_Controller');
 
 Director::addRules(
         100,
