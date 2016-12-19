@@ -62,7 +62,7 @@ $(document).ready(function() {
                 currentQuickSearchRequest.abort();
             }
             currentQuickSearchRequest = $.ajax({
-                url:        uri + 'silvercart_search_autocompletion/results.php?locale=' + SSALOCALE,
+                url:        uri + 'silvercart_search_autocompletion/results.php?locale=' + SSALOCALE + '&pt=' + SSAPT,
                 dataType:   'json',
                 async:      true,
                 type:       'POST',
@@ -78,7 +78,10 @@ $(document).ready(function() {
                             displayTitle = displayTitle.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
                             displayTitle = displayTitle.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
 
-                            autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="title">' + displayTitle + '</span><span class="price">' + this.Price + ' ' + this.Currency + '</span></a></li>');
+                            if (typeof this.PriceNice === 'undefined') {
+                                this.PriceNice = this.Price + ' ' + this.Currency;
+                            }
+                            autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="title">' + displayTitle + '</span><span class="price">' + this.PriceNice + '</span></a></li>');
                             currentindex++;
                         }
                     });

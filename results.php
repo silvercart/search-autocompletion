@@ -56,6 +56,13 @@ if (array_key_exists('locale', $_GET) &&
     !empty($_GET['locale'])) {
     SilvercartSearchAutocompletion::$locale = $_GET['locale'];
 }
+if (array_key_exists('pt', $_GET) &&
+    !empty($_GET['pt'])) {
+    if ($_GET['pt'] == 1) {
+        SilvercartSearchAutocompletion::$priceField    = 'PriceNetAmount';
+        SilvercartSearchAutocompletion::$currencyField = 'PriceNetCurrency';
+    }
+}
 
 global $database;
 $databaseConfig = array(
@@ -119,12 +126,15 @@ if ($result) {
     $resultArray = array();
     $productIDs  = array();
     while ($assoc = $result->fetch_assoc()) {
+        $addToTitle = ' ';
+        SilvercartSearchAutocompletion::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
         $productIDs[]  = $assoc['SilvercartProductID'];
         $resultArray[] = array(
-            'Title'     => $assoc['Title'],
+            'Title'     => $assoc['Title'] . $addToTitle,
             'ID'        => $assoc['SilvercartProductID'],
-            'Price'     => number_format($assoc['PriceGrossAmount'], 2, ',', '.'),
-            'Currency'  => $assoc['PriceGrossCurrency'],
+            'Price'     => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
+            'Currency'  => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
+            'PriceNice' => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
         );
     }
     $result->close();
@@ -164,6 +174,20 @@ class SilvercartSearchAutocompletion {
      * @var string
      */
     public static $locale = 'de_DE';
+    
+    /**
+     * Price field
+     *
+     * @var string
+     */
+    public static $priceField = 'PriceGrossAmount';
+    
+    /**
+     * currency field
+     *
+     * @var string
+     */
+    public static $currencyField = 'PriceGrossCurrency';
 
     /**
      * Adds additional results from a less strict search to $resultArray
@@ -216,15 +240,102 @@ class SilvercartSearchAutocompletion {
         $result = $mysqli->query($searchQuery);
         if ($result) {
             while ($assoc = $result->fetch_assoc()) {
+                $addToTitle = ' ';
+                self::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
                 $resultArray[] = array(
-                    'Title'     => $assoc['Title'],
+                    'Title'     => $assoc['Title'] . $addToTitle,
                     'ID'        => $assoc['SilvercartProductID'],
-                    'Price'     => number_format($assoc['PriceGrossAmount'], 2, ',', '.'),
-                    'Currency'  => $assoc['PriceGrossCurrency'],
+                    'Price'     => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
+                    'Currency'  => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
+                    'PriceNice' => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
                 );
             }
             $result->close();
         }
+        
+        self::extend('addSearchResults', $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli, $resultArray);
     }
+    
+    /**
+     * Executes an extension hook.
+     * 
+     * @param string $method Extension method to call
+     * @param mixed  &$a1    Extension parameter 1
+     * @param mixed  &$a2    Extension parameter 2
+     * @param mixed  &$a3    Extension parameter 3
+     * @param mixed  &$a4    Extension parameter 4
+     * @param mixed  &$a5    Extension parameter 5
+     * @param mixed  &$a6    Extension parameter 6
+     * @param mixed  &$a7    Extension parameter 7
+     * 
+     * @return void
+     * 
+     * @global array $searchAutoCompletionExtensions
+     * 
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 16.12.2016
+     */
+    public static function extend($method, &$a1=null, &$a2=null, &$a3=null, &$a4=null, &$a5=null, &$a6=null, &$a7=null) {
+        global $searchAutoCompletionExtensions;
+        if (!is_array($searchAutoCompletionExtensions)) {
+            $searchAutoCompletionExtensions = array();
+        }
+        foreach ($searchAutoCompletionExtensions as $path => $classname) {
+            require_once '../' . $path;
+            $extension = new $classname();
+            if (method_exists($extension, $method)) {
+                $extension->$method($a1, $a2, $a3, $a4, $a5, $a6, $a7);
+            }
+        }
+    }
+    
+	/**
+     * Returns a money (price) string in a nice format dependant on the current locale.
+     * 
+     * @param float  $amount   Amount
+     * @param string $currency Currency string
+     * @param array  $options  Additional options
+     * 
+	 * @return string
+     * 
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 16.12.2016
+	 */
+	public static function nice_money($amount, $currency, $options = array()) {
+        $includePath = get_include_path();
+        $includePath = $includePath . PATH_SEPARATOR . str_replace('silvercart_search_autocompletion', '', getcwd()) . 'framework/thirdparty/';
+        set_include_path($includePath);
+        require_once 'Zend/Currency.php';
+		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
+        if (!isset($options['display'])) {
+            $options['display'] = Zend_Currency::USE_SYMBOL;
+        }
+		if (!isset($options['currency'])) {
+            $options['currency'] = $currency;
+        }
+		if (!isset($options['symbol'])) {
+			$options['symbol'] = $currencyLib->getSymbol($options['currency'], SilvercartSearchAutocompletion::$locale);
+		}
+		return (is_numeric($amount)) ? $currencyLib->toCurrency($amount, $options) : '';
+	}
+    
+	/**
+     * Returns a money (price) string in a nice format dependant on the current locale.
+     * 
+     * @param string $currency Currency string
+     * 
+	 * @return string
+     * 
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 16.12.2016
+	 */
+	public static function nice_currency($currency) {
+        $includePath = get_include_path();
+        $includePath = $includePath . PATH_SEPARATOR . str_replace('silvercart_search_autocompletion', '', getcwd()) . 'framework/thirdparty/';
+        set_include_path($includePath);
+        require_once 'Zend/Currency.php';
+		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
+		return $currencyLib->getSymbol($currency, SilvercartSearchAutocompletion::$locale);
+	}
     
 }
