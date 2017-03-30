@@ -57,7 +57,8 @@ class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
      * @since 29.11.2013
      */
     public function onAfterInit() {
-        Requirements::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\';</script>', 'SSALOCALE');
+        $priceType = SilvercartConfig::PriceType() == 'net' ? 1 : 0;
+        Requirements::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\', SSAPT = \'' . $priceType . '\';</script>', 'SSALOCALE');
         Requirements::themedCss('SilvercartSearchAutocompletion', 'silvercart_search_autocompletion');
     }
     
