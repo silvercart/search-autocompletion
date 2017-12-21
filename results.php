@@ -92,15 +92,21 @@ if (count($searchTermParts) > 1) {
     $finalizedSearchTerm = sprintf(
             '
                 SPL.Title LIKE \'%s%%\' OR
-                SPL.Title LIKE \'%s%%\'',
-            $searchTerm,
-            implode('%', $searchTermParts)
+                SPL.Title LIKE \'%s%%\' OR
+                SP.ProductNumberShop LIKE \'%s%%\' OR
+                SP.ProductNumberShop LIKE \'%s%%\'',
+                $searchTerm,
+                implode('%', $searchTermParts),
+                $searchTerm,
+                implode('%', $searchTermParts)
     );
 } else {
     $finalizedSearchTerm = sprintf(
             '
-                SPL.Title LIKE \'%s%%\'',
-            $searchTerm
+                SPL.Title LIKE \'%s%%\' OR
+                SP.ProductNumberShop LIKE \'%s%%\'',
+                $searchTerm,
+                $searchTerm
     );
 }
 $searchQuery = sprintf(
@@ -206,10 +212,15 @@ class SilvercartSearchAutocompletion {
         $searchTermParts    = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $finalizedSearchTerm = sprintf(
-                    'SPL.Title LIKE \'%%%s%%\' OR
-                     SPL.Title LIKE \'%%%s%%\'',
-                    $searchTerm,
-                    implode('%', $searchTermParts)
+                    '
+                        SPL.Title LIKE \'%%%s%%\' OR
+                        SPL.Title LIKE \'%%%s%%\' OR
+                        SP.ProductNumberShop LIKE \'%%%s%%\' OR
+                        SP.ProductNumberShop LIKE \'%%%s%%\'',
+                        $searchTerm,
+                        implode('%', $searchTermParts),
+                        $searchTerm,
+                        implode('%', $searchTermParts)
             );
         } else {
             $finalizedSearchTerm = sprintf(
