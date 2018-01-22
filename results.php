@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016 pixeltricks GmbH
+ * Copyright 2018 pixeltricks GmbH
  *
  * This file is part of SilverCart.
  *
@@ -136,11 +136,12 @@ if ($result) {
         SilvercartSearchAutocompletion::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
         $productIDs[]  = $assoc['SilvercartProductID'];
         $resultArray[] = array(
-            'Title'     => $assoc['Title'] . $addToTitle,
-            'ID'        => $assoc['SilvercartProductID'],
-            'Price'     => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
-            'Currency'  => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
-            'PriceNice' => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
+            'ProductNumberShop' => $assoc['ProductNumberShop'],
+            'Title'             => $assoc['Title'] . $addToTitle,
+            'ID'                => $assoc['SilvercartProductID'],
+            'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
+            'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
+            'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
         );
     }
     $result->close();
@@ -206,7 +207,7 @@ class SilvercartSearchAutocompletion {
      * @return void
      *
      * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 28.10.2013
+     * @since 22.01.2018
      */
     public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli, $ignoreProductIDs) {
         $searchTermParts    = explode(' ', $searchTerm);
@@ -254,11 +255,12 @@ class SilvercartSearchAutocompletion {
                 $addToTitle = ' ';
                 self::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
                 $resultArray[] = array(
-                    'Title'     => $assoc['Title'] . $addToTitle,
-                    'ID'        => $assoc['SilvercartProductID'],
-                    'Price'     => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
-                    'Currency'  => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
-                    'PriceNice' => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
+                    'ProductNumberShop' => $assoc['ProductNumberShop'],
+                    'Title'             => $assoc['Title'] . $addToTitle,
+                    'ID'                => $assoc['SilvercartProductID'],
+                    'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
+                    'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
+                    'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
                 );
             }
             $result->close();

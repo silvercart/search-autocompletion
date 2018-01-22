@@ -78,10 +78,15 @@ $(document).ready(function() {
                             displayTitle = displayTitle.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
                             displayTitle = displayTitle.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
 
+                            var displayProductNumberShop = this.ProductNumberShop.replace(searchTerm, '<strong>' + searchTerm + '</strong>');
+                            displayProductNumberShop = displayProductNumberShop.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
+                            displayProductNumberShop = displayProductNumberShop.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
+
+
                             if (typeof this.PriceNice === 'undefined') {
                                 this.PriceNice = this.Price + ' ' + this.Currency;
                             }
-                            autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="title">' + displayTitle + '</span><span class="price">' + this.PriceNice + '</span></a></li>');
+                            autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="product-number">' + displayProductNumberShop + '</span><span class="title">' + displayTitle + '</span><span class="price">' + this.PriceNice + '</span></a></li>');
                             currentindex++;
                         }
                     });
