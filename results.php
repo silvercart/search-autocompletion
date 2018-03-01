@@ -109,6 +109,7 @@ if (count($searchTermParts) > 1) {
                 $searchTerm
     );
 }
+SilvercartSearchAutocompletion::extend('updateFinalizedSearchTerm', $finalizedSearchTerm, $searchTerm);
 $searchQuery = sprintf(
         'SELECT * FROM SilvercartProduct AS SP LEFT JOIN SilvercartProductLanguage AS SPL ON (SP.ID = SPL.SilvercartProductID) WHERE 
             isActive = 1 AND
@@ -134,16 +135,19 @@ if ($result) {
     while ($assoc = $result->fetch_assoc()) {
         $addToTitle = ' ';
         SilvercartSearchAutocompletion::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
+        $title = $assoc['Title'] . $addToTitle;
+        SilvercartSearchAutocompletion::extend('updateTitle', $title, $assoc, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
         $productIDs[]  = $assoc['SilvercartProductID'];
         $resultArray[] = array(
             'ProductNumberShop' => $assoc['ProductNumberShop'],
-            'Title'             => $assoc['Title'] . $addToTitle,
+            'Title'             => $title,
             'ID'                => $assoc['SilvercartProductID'],
             'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
             'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
             'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
         );
     }
+    SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
     $result->close();
     
     /* if there is room for additional search results, try to find more results with a less strict query  */
@@ -225,10 +229,13 @@ class SilvercartSearchAutocompletion {
             );
         } else {
             $finalizedSearchTerm = sprintf(
-                    'SPL.Title LIKE \'%%%s%%\'',
+                    'SPL.Title LIKE \'%%%s%%\' OR
+                     SP.ProductNumberShop LIKE \'%%%s%%\'',
+                    $searchTerm,
                     $searchTerm
             );
         }
+        self::extend('updateAdditionalFinalizedSearchTerm', $finalizedSearchTerm, $searchTerm);
         $ignoreProductIDsTerm = '';
         if (count($ignoreProductIDs) > 0) {
             $ignoreProductIDsTerm = ' AND SP.ID NOT IN (' . implode(',', $ignoreProductIDs) . ')';
@@ -254,14 +261,17 @@ class SilvercartSearchAutocompletion {
             while ($assoc = $result->fetch_assoc()) {
                 $addToTitle = ' ';
                 self::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
+                $title = $assoc['Title'] . $addToTitle;
+                self::extend('updateTitle', $title, $assoc, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
                 $resultArray[] = array(
                     'ProductNumberShop' => $assoc['ProductNumberShop'],
-                    'Title'             => $assoc['Title'] . $addToTitle,
+                    'Title'             => $title,
                     'ID'                => $assoc['SilvercartProductID'],
                     'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
                     'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
                     'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
                 );
+                SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
             }
             $result->close();
         }
@@ -291,7 +301,7 @@ class SilvercartSearchAutocompletion {
     public static function extend($method, &$a1=null, &$a2=null, &$a3=null, &$a4=null, &$a5=null, &$a6=null, &$a7=null) {
         global $searchAutoCompletionExtensions;
         if (!is_array($searchAutoCompletionExtensions)) {
-            $searchAutoCompletionExtensions = array();
+            $searchAutoCompletionExtensions = [];
         }
         foreach ($searchAutoCompletionExtensions as $path => $classname) {
             require_once '../' . $path;
@@ -302,7 +312,29 @@ class SilvercartSearchAutocompletion {
         }
     }
     
-	/**
+    /**
+     * Adds the given extension.
+     * 
+     * @param string $extension Extension
+     * @param string $path      Extension file path (relative)
+     * 
+     * @return void
+     *
+     * @global array $searchAutoCompletionExtensions
+     * @author Sebastian Diel <sdiel@pixeltricks.de>
+     * @since 28.02.2018
+     */
+    public static function add_extension($extension, $path) {
+        global $searchAutoCompletionExtensions;
+        if (!is_array($searchAutoCompletionExtensions)) {
+            $searchAutoCompletionExtensions = [];
+        }
+        if (!array_key_exists($path, $searchAutoCompletionExtensions)) {
+            $searchAutoCompletionExtensions[$path] = $extension;
+        }
+    }
+
+    /**
      * Returns a money (price) string in a nice format dependant on the current locale.
      * 
      * @param float  $amount   Amount
