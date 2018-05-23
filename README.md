@@ -6,7 +6,7 @@ Show search results immediately (ajax live search)
 * Ramon Kupper <rkupper@pixeltricks.de>
 
 ## Requirements
-* SilverStripe 3.1
+* SilverCart 4.1
 
 ## Summary
 SilverCart is an Open Source E-Commerce module for the CMS Framework SilverStripe.

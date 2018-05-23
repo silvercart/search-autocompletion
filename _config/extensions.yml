@@ -1,0 +1,6 @@
+---
+Name: silvercart-search-autocompletion-extensions
+---
+SilverCart\Model\Pages\PageController:
+  extensions:
+    - SilverCart\Search\Autocompletion\Model\Pages\PageControllerExtension

@@ -1,0 +1,6 @@
+---
+Name: silvercart-search-autocompletion-routes
+---
+SilverStripe\Control\Director:
+  rules:
+    'ssa': SilverCart\Search\Autocompletion\Control\Controller
