@@ -1,34 +1,43 @@
 # SilverCart Search Autocompletion
 
-## Installation
-
-For optimal performance, the AJAX-callback does not use the SilverStripe framework. 
-Instead, the module uses plain PHP and direct database queries. For database access,
-the module parses the relevant values from the _ss_environment file. 
-
-Since we also skip SilverCart and all of it's modules, the database name will not be 
-known. To solve this, please add the following code to the end of your _ss_environment file:
-
-You can find this code in silvercart/_config.php:
-
-    global $database;
-    $database = PIX_CUSTOMER . '_' . PIX_PROJECT;
-
-You also have to add the JavaScript to actually trigger the search either to your Page_Controller or straight into your template:
-    
-    Requirements::javascript('silvercart_search_autocompletion/js/SilvercartSearchAutocompletion.js');
-
-## Behaviour
-After typing into the search field, the JavaScript triggers a request straight to results.php bypassing the SilverStripe Framework to achieve maximum performance.
+## Behavior
+After typing into the search field (at least 3 characters), the JavaScript triggers a request straight to the controller SilverCart\Search\Autocompletion\Control\Controller by calling the URL /ssa.
 
 The search process itself consists of 3 steps:
-* strict search, find products matching Title LIKE 'searchterm%'.
-In case of less results than configured via SilvercartSearchAutocompletion::$resultsLimit (defaults to 20):
-* perform less strict search (LIKE '%searchterm%') and 
-* perform a search for single word occurences in case several search terms have been entered
+
+1. strict search, find products matching Title LIKE 'searchterm%'.
+2. perform less strict search (LIKE '%searchterm%') and 
+3. perform a search for single word occurences in case several search terms have been entered
+
+Step 2./3. is only processed if the previous step(s) resulted in less then 20 (default value of SilverCart\Search\Autocompletion\Control\Controller::$results_limit) search results.
+
+### Adjust maximum amount of search results
+THe maximum amount of search results is 20 by default. To change this setting, there are two ways:
+
+#### 1. Change the setting through the /mysite/_config.php
+The following example shows how to increase the maximum amount of search results to 30 by using PHP.
+
+	```php
+	<?php
+	// ...
+	use SilverCart\Search\Autocompletion\Control\Controller;
+	// set the max results limit to 30
+	Controller::config()->update('results_limit', 30);
+	```
+
+#### 2. Change the setting through the /mysite/_config/config.yml
+The following example shows how to increase the maximum amount of search results to 25 by using YAML.
+
+	```yaml
+	SilverCart\Search\Autocompletion\Control\Controller:
+            results_limit: 25
+	```
+
+## Example
 
 *Example search term: unicorn rainbow*
+
 In the first step, the database is queried for products that start with the exact search term: "unicorn rainbow".
 If less than 20 products are being found, products that contain the words "unicorn" and "rainbow" anywhere in the title but in the exact order. 
-For best performance, a product titled "rainbow unicorn" will not be found with the search term "unicorn rainbow".
 
+For best performance, a product titled "rainbow unicorn" will not be found with the search term "unicorn rainbow".
