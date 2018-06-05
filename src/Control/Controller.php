@@ -63,6 +63,7 @@ class Controller extends BaseController {
                 if ($additionalResults->exists()) {
                     $results = new ArrayList($results->toArray());
                     $results->merge($additionalResults);
+                    $results->removeDuplicates();
                 }
             }
             $jsonResult = $this->getJsonResult($results);
@@ -78,15 +79,14 @@ class Controller extends BaseController {
      * @return void
      *
      * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 17.05.2018
+     * @since 04.06.2018
      */
     public function gotoresult(HTTPRequest $request) {
         $ID = $request->param('ID');
         if (is_numeric($ID)) {
-            $products = Product::get()->byID($ID);
-            if ($products instanceof DataList &&
-                $products->exists()) {
-                $product = $products->first();
+            $product = Product::get()->byID($ID);
+            if ($product instanceof Product &&
+                $product->exists()) {
                 $this->redirect($product->Link());
             }
         }
