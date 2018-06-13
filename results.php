@@ -348,7 +348,7 @@ class SilvercartSearchAutocompletion {
 	 */
 	public static function nice_money($amount, $currency, $options = array()) {
         $includePath = get_include_path();
-        $includePath = $includePath . PATH_SEPARATOR . str_replace('silvercart_search_autocompletion', '', getcwd()) . 'framework/thirdparty/';
+        $includePath = $includePath . PATH_SEPARATOR . str_replace(self::get_module_name(), '', getcwd()) . 'framework/thirdparty/';
         set_include_path($includePath);
         require_once 'Zend/Currency.php';
 		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
@@ -376,11 +376,24 @@ class SilvercartSearchAutocompletion {
 	 */
 	public static function nice_currency($currency) {
         $includePath = get_include_path();
-        $includePath = $includePath . PATH_SEPARATOR . str_replace('silvercart_search_autocompletion', '', getcwd()) . 'framework/thirdparty/';
+        $includePath = $includePath . PATH_SEPARATOR . str_replace(self::get_module_name(), '', getcwd()) . 'framework/thirdparty/';
         set_include_path($includePath);
         require_once 'Zend/Currency.php';
 		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
 		return $currencyLib->getSymbol($currency, SilvercartSearchAutocompletion::$locale);
 	}
+    
+    /**
+     * Returns the module name of the given working directory context.
+     * If there is no working directory context given, the module name will be
+     * determined dynamically by debug_backtrace().
+     * 
+     * @param string $contextWorkingDirectory Context working directory of the calling class
+     * 
+     * @return string
+     */
+    public static function get_module_name() {
+        return array_pop(explode('/', __DIR__));
+    }
     
 }

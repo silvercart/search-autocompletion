@@ -44,7 +44,7 @@ class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
      * @since 11.02.2016
      */
     public function updatedJSRequirements(&$jsFiles) {
-        $jsFiles[] = 'silvercart_search_autocompletion/js/SilvercartSearchAutocompletion.js';
+        $jsFiles[] = SilvercartTools::get_module_name() . '/js/SilvercartSearchAutocompletion.js';
     }
     
     /**
@@ -58,8 +58,8 @@ class SilvercartSearchAutocompletionPage_Controller extends DataExtension {
      */
     public function onAfterInit() {
         $priceType = SilvercartConfig::PriceType() == 'net' ? 1 : 0;
-        Requirements::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\', SSAPT = \'' . $priceType . '\';</script>', 'SSALOCALE');
-        Requirements::themedCss('SilvercartSearchAutocompletion', 'silvercart_search_autocompletion');
+        Requirements::insertHeadTags('<script type="text/javascript">var SSALOCALE = \'' . i18n::get_locale() . '\', SSAPT = \'' . $priceType . '\', SCSA_MODULE_NAME = \'' . SilvercartTools::get_module_name() . '\';</script>', 'SSALOCALE');
+        Requirements::themedCss('SilvercartSearchAutocompletion', SilvercartTools::get_module_name());
     }
     
 }
