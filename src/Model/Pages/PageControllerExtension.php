@@ -18,17 +18,22 @@ use SilverStripe\View\Requirements;
 class PageControllerExtension extends Extension {
     
     /**
-     * Updates the default JS files.
+     * Adds some JS files.
      * 
      * @param array &$jsFiles JS files
      * 
      * @return void
      *
      * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 17.05.2018
+     * @since 10.07.2018
      */
-    public function updatedJSRequirements(&$jsFiles) {
-        $jsFiles[] = 'silvercart/search-autocompletion:client/javascript/SearchAutocompletion.js';
+    public function updateRequireExtendedJavaScript(&$jsFiles) {
+        $jsFiles = array_merge(
+            $jsFiles,
+            [
+                'silvercart/search-autocompletion:client/javascript/SearchAutocompletion.js',
+            ]
+        );
     }
     
     /**
