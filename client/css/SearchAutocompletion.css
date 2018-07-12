@@ -1,6 +1,6 @@
 
 .silvercart-search-autocompletion-results {
-    display: inline-block;
+    display: none;
     width: 0px;
     height: 0px;
     overflow: visible;

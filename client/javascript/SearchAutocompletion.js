@@ -17,11 +17,12 @@ $(document).ready(function() {
     
     $('input[name="quickSearchQuery"]').keyup(function(event) {
         
-        var inputField          = $(this),
-            inputFieldOffset    = inputField.offset(),
-            searchTerm          = inputField.val(),
-            autoCompleteList    = $('.silvercart-search-autocompletion-results ul'),
-            uri                 = document.baseURI ? document.baseURI : '/';
+        var inputField             = $(this),
+            inputFieldOffset       = inputField.offset(),
+            searchTerm             = inputField.val(),
+            autoCompleteListHolder = $('.silvercart-search-autocompletion-results'),
+            autoCompleteList       = $('.silvercart-search-autocompletion-results ul'),
+            uri                    = document.baseURI ? document.baseURI : '/';
         
         autoCompleteList.css('top', inputFieldOffset.top + inputField.outerHeight());
         autoCompleteList.css('left', inputFieldOffset.left);
@@ -57,6 +58,7 @@ $(document).ready(function() {
             }
         } else if (searchTerm === '' || searchTerm.length < 3) {
             autoCompleteList.html('');
+            autoCompleteListHolder.css('display', 'none');
         } else {
             if (currentQuickSearchRequest !== false) {
                 currentQuickSearchRequest.abort();
@@ -86,6 +88,7 @@ $(document).ready(function() {
                             if (typeof this.PriceNice === 'undefined') {
                                 this.PriceNice = this.Price + ' ' + this.Currency;
                             }
+                            autoCompleteListHolder.css('display', 'inline-block');
                             autoCompleteList.append('<li rel="' + currentindex + '"><a href="' + uri + 'ssa/gotoresult/' + this.ID + '" class="clearfix"><span class="product-number">' + displayProductNumberShop + '</span><span class="title">' + displayTitle + '</span><span class="price">' + this.PriceNice + '</span></a></li>');
                             currentindex++;
                         }
