@@ -78,10 +78,12 @@ $(document).ready(function() {
                             displayTitle = displayTitle.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
                             displayTitle = displayTitle.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
 
-                            var displayProductNumberShop = this.ProductNumberShop.replace(searchTerm, '<strong>' + searchTerm + '</strong>');
-                            displayProductNumberShop = displayProductNumberShop.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
-                            displayProductNumberShop = displayProductNumberShop.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
-
+                            var displayProductNumberShop = '';
+                            if (this.ProductNumberShop !== null) {
+                                displayProductNumberShop = this.ProductNumberShop.replace(searchTerm, '<strong>' + searchTerm + '</strong>');
+                                displayProductNumberShop = displayProductNumberShop.replace(searchTerm.toUpperCase(), '<strong>' + searchTerm.toUpperCase() + '</strong>');
+                                displayProductNumberShop = displayProductNumberShop.replace(searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1), '<strong>' + searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1) + '</strong>');
+                            }
 
                             if (typeof this.PriceNice === 'undefined') {
                                 this.PriceNice = this.Price + ' ' + this.Currency;
