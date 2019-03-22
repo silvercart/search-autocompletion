@@ -7,6 +7,7 @@ use SilverStripe\Control\Controller as BaseController;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\SS_List;
 
 /**
  * Controller to direct to the right product detail.
@@ -18,8 +19,8 @@ use SilverStripe\ORM\DataList;
  * @license see license file in modules root directory
  * @copyright 2018 pixeltricks GmbH
  */
-class Controller extends BaseController {
-    
+class Controller extends BaseController
+{
     /**
      * Allowed actions
      *
@@ -29,7 +30,6 @@ class Controller extends BaseController {
         'getresults',
         'gotoresult',
     ];
-    
     /**
      * Maximum count of results to show.
      *
@@ -41,14 +41,15 @@ class Controller extends BaseController {
     /**
      * Returns the search results.
      * 
-     * @param SS_HTTPRequest $request Request
+     * @param HTTPRequest $request Request
      * 
      * @return string
      *
      * @author Sebastian Diel <sdiel@pixeltricks.de>
      * @since 17.05.2018
      */
-    public function getresults(HTTPRequest $request) {
+    public function getresults(HTTPRequest $request) : string
+    {
         $jsonResult = json_encode([]);
         $searchTerm = $request->postVar('searchTerm');
         if (is_null($searchTerm)) {
@@ -61,7 +62,7 @@ class Controller extends BaseController {
             if ($results->count() < $limit) {
                 $additionalResults = $this->getAdditionalResults($searchTerm, $limit - $results->count());
                 if ($additionalResults->exists()) {
-                    $results = new ArrayList($results->toArray());
+                    $results = ArrayList::create($results->toArray());
                     $results->merge($additionalResults);
                     $results->removeDuplicates();
                 }
@@ -74,14 +75,15 @@ class Controller extends BaseController {
     /**
      * Redirects to the product with the given product ID if allowed.
      * 
-     * @param SS_HTTPRequest $request Request
+     * @param HTTPRequest $request Request
      * 
      * @return void
      *
      * @author Sebastian Diel <sdiel@pixeltricks.de>
      * @since 04.06.2018
      */
-    public function gotoresult(HTTPRequest $request) {
+    public function gotoresult(HTTPRequest $request) : void
+    {
         $ID = $request->param('ID');
         if (is_numeric($ID)) {
             $product = Product::get()->byID($ID);
@@ -104,7 +106,8 @@ class Controller extends BaseController {
      * 
      * @return DataList
      */
-    protected function getAdditionalResults($searchTerm, $limit) {
+    protected function getAdditionalResults(string $searchTerm, int $limit)
+    {
         $filter            = $this->getWhereClause($searchTerm, '%%');
         $additionalResults = Product::get()->where($filter)->limit($limit);
         $this->extend('updateAdditionalResults', $additionalResults, $searchTerm, $limit);
@@ -119,7 +122,8 @@ class Controller extends BaseController {
      * 
      * @return string
      */
-    protected function getWhereClause($searchTerm, $likePrefix = '') {
+    protected function getWhereClause(string $searchTerm, string $likePrefix = '') : string
+    {
         $searchTermParts = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $whereClause = sprintf("
@@ -147,11 +151,12 @@ class Controller extends BaseController {
     /**
      * Builds and returns the JSON result.
      * 
-     * @param DataList $products Products
+     * @param SS_List $products Products
      * 
      * @return string
      */
-    protected function getJsonResult($products) {
+    protected function getJsonResult(SS_List $products) : string
+    {
         $arrayData = [];
         foreach ($products as $product) {
             /* @var $product Product */
@@ -161,7 +166,7 @@ class Controller extends BaseController {
                 'ID'                => $product->ID,
                 'Price'             => number_format($product->getPrice()->getAmount(), 2, ',', '.'),
                 'Currency'          => $product->getPrice()->getCurrency(),
-                'PriceNice'         => $product->getPriceNice(),
+                'PriceNice'         => (string) $product->getPriceNice(),
             ];
             $this->extend('updateSingleJsonResult', $singleArrayData, $product);
             $arrayData[] = $singleArrayData;
@@ -169,5 +174,4 @@ class Controller extends BaseController {
         $this->extend('updateJsonResult', $arrayData, $products);
         return json_encode($arrayData);
     }
-    
 }

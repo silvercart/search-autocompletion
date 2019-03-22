@@ -15,8 +15,8 @@ use SilverStripe\View\Requirements;
  * @license see license file in modules root directory
  * @copyright 2018 pixeltricks GmbH
  */
-class PageControllerExtension extends Extension {
-    
+class PageControllerExtension extends Extension
+{
     /**
      * Adds some JS files.
      * 
@@ -27,7 +27,8 @@ class PageControllerExtension extends Extension {
      * @author Sebastian Diel <sdiel@pixeltricks.de>
      * @since 10.07.2018
      */
-    public function updateRequireExtendedJavaScript(&$jsFiles) {
+    public function updateRequireExtendedJavaScript(array &$jsFiles) : void
+    {
         $jsFiles = array_merge(
             $jsFiles,
             [
@@ -45,8 +46,8 @@ class PageControllerExtension extends Extension {
      * @author Sebastian Diel <sdiel@pixeltricks.de>
      * @since 17.05.2018
      */
-    public function onAfterInit() {
+    public function onAfterInit() : void
+    {
         Requirements::themedCSS('client/css/SearchAutocompletion');
     }
-    
 }
