@@ -124,25 +124,17 @@ class Controller extends BaseController
      */
     protected function getWhereClause(string $searchTerm, string $likePrefix = '') : string
     {
+        $searchTerm      = addslashes($searchTerm);
         $searchTermParts = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
-            $whereClause = sprintf("
-                        SilvercartProductTranslation.Title LIKE '" . $likePrefix . "%s%%' OR
-                        SilvercartProductTranslation.Title LIKE '" . $likePrefix . "%s%%' OR
-                        SilvercartProduct.ProductNumberShop LIKE '" . $likePrefix . "%s%%' OR
-                        SilvercartProduct.ProductNumberShop LIKE '" . $likePrefix . "%s%%'",
-                        $searchTerm,
-                        implode('%', $searchTermParts),
-                        $searchTerm,
-                        implode('%', $searchTermParts)
-            );
+            $searchTerm2 = implode('%', $searchTermParts);
+            $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%'";
         } else {
-            $whereClause = sprintf("
-                        SilvercartProductTranslation.Title LIKE '" . $likePrefix . "%s%%' OR
-                        SilvercartProduct.ProductNumberShop LIKE '" . $likePrefix . "%s%%'",
-                        $searchTerm,
-                        $searchTerm
-            );
+            $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%'";
         }
         $this->extend('updateWhereClause', $whereClause, $searchTerm);
         return $whereClause;
