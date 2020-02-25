@@ -1,6 +1,6 @@
 {
 	"name": "silvercart/search-autocompletion",
-	"type": "silverstripe-module",
+	"type": "silverstripe-vendormodule",
 	"description": "Search autocompletion module for the SilverCart ecommerce module for SilverStripe",
 	"homepage": "http://www.silvercart.org",
 	"license": "LGPL-3.0",
