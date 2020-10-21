@@ -24,8 +24,11 @@ $(document).ready(function() {
             uri                 = document.baseURI ? document.baseURI : '/';
         
         autoCompleteList.css('top', inputFieldOffset.top + inputField.outerHeight());
-        autoCompleteList.css('left', inputFieldOffset.left);
-        
+        if ($(window).width() / 2 < inputFieldOffset.left) {
+            autoCompleteList.css('right', $(window).width() - (inputFieldOffset.left + inputField.outerWidth()));
+        } else {
+            autoCompleteList.css('left', inputFieldOffset.left);
+        }
         if (event.keyCode === 40) {
             // down
             var rel = 0;
