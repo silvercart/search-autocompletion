@@ -4,6 +4,8 @@ namespace SilverCart\Search\Autocompletion\Model\Pages;
 
 use SilverStripe\Core\Extension;
 use SilverStripe\View\Requirements;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\ThemeResourceLoader;
 
 /**
  * Adds i18n support to the Javascript.
@@ -32,7 +34,7 @@ class PageControllerExtension extends Extension
         $jsFiles = array_merge(
             $jsFiles,
             [
-                'silvercart/search-autocompletion:client/javascript/SearchAutocompletion.js',
+                ThemeResourceLoader::inst()->findThemedJavascript('client/javascript/SearchAutocompletion', SSViewer::get_themes()),
             ]
         );
     }
