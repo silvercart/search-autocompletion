@@ -148,14 +148,14 @@ if ($result) {
             'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
             'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
         ];
+        SilvercartSearchAutocompletion::extend('updateResult', $resultArray, $assoc);
     }
-    SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
     $result->close();
-    
     /* if there is room for additional search results, try to find more results with a less strict query  */
     if (count($resultArray) < SilvercartSearchAutocompletion::$resultsLimit) {
         SilvercartSearchAutocompletion::addAdditionalResults($resultArray, $searchTerm, $mysqli, $productIDs);
     }
+    SilvercartSearchAutocompletion::extend('updateResults', $resultArray);
     $jsonResult = json_encode($resultArray); 
 }
 
@@ -268,7 +268,7 @@ class SilvercartSearchAutocompletion
                     'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
                     'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
                 ];
-                SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
+                SilvercartSearchAutocompletion::extend('updateResult', $resultArray, $assoc);
             }
             $result->close();
         }
