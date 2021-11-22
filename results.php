@@ -28,12 +28,12 @@ if (!array_key_exists('searchTerm', $_POST)) {
 /**
  * Include _ss_environment.php files
  */
-$envFiles = array(
+$envFiles = [
     '_ss_environment.php',
     '../_ss_environment.php',
     '../../_ss_environment.php',
     '../../../_ss_environment.php'
-);
+];
 foreach ($envFiles as $envFile) {
     if (@file_exists($envFile)) {
         define('SS_ENVIRONMENT_FILE', $envFile);
@@ -47,31 +47,33 @@ if (!defined('SS_ENVIRONMENT_FILE')) {
     exit();
 }
 
-if (!defined('SS_DATABASE_USERNAME') ||
-   !defined('SS_DATABASE_PASSWORD')) {
+if (!defined('SS_DATABASE_USERNAME')
+ || !defined('SS_DATABASE_PASSWORD')
+) {
     user_error("SS_DATABASE_USERNAME and/or SS_DATABASE_PASSWORD is not defined.", E_WARNING);
     exit();
 }
-if (array_key_exists('locale', $_GET) &&
-    !empty($_GET['locale'])) {
+if (array_key_exists('locale', $_GET)
+ && !empty($_GET['locale'])
+) {
     SilvercartSearchAutocompletion::$locale = $_GET['locale'];
 }
-if (array_key_exists('pt', $_GET) &&
-    !empty($_GET['pt'])) {
-    if ($_GET['pt'] == 1) {
-        SilvercartSearchAutocompletion::$priceField    = 'PriceNetAmount';
-        SilvercartSearchAutocompletion::$currencyField = 'PriceNetCurrency';
-    }
+if (array_key_exists('pt', $_GET)
+ && !empty($_GET['pt'])
+ && $_GET['pt'] == 1
+) {
+    SilvercartSearchAutocompletion::$priceField    = 'PriceNetAmount';
+    SilvercartSearchAutocompletion::$currencyField = 'PriceNetCurrency';
 }
 
 global $database;
-$databaseConfig = array(
+$databaseConfig = [
     "type"      => defined('SS_DATABASE_CLASS')     ? SS_DATABASE_CLASS     : "MySQLDatabase",
     "server"    => defined('SS_DATABASE_SERVER')    ? SS_DATABASE_SERVER    : 'localhost', 
     "username"  => SS_DATABASE_USERNAME, 
     "password"  => SS_DATABASE_PASSWORD, 
     "database"  => (defined('SS_DATABASE_PREFIX')   ? SS_DATABASE_PREFIX    : '') . $database . (defined('SS_DATABASE_SUFFIX') ? SS_DATABASE_SUFFIX : ''),
-);
+];
 
 $mysqli = new mysqli(
         $databaseConfig['server'],
@@ -130,22 +132,22 @@ $mysqli->query('SET NAMES utf8');
 /* @var $result mysqli_result */
 $result = $mysqli->query($searchQuery);
 if ($result) {
-    $resultArray = array();
-    $productIDs  = array();
+    $resultArray = [];
+    $productIDs  = [];
     while ($assoc = $result->fetch_assoc()) {
         $addToTitle = ' ';
         SilvercartSearchAutocompletion::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
         $title = $assoc['Title'] . $addToTitle;
         SilvercartSearchAutocompletion::extend('updateTitle', $title, $assoc, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
         $productIDs[]  = $assoc['SilvercartProductID'];
-        $resultArray[] = array(
+        $resultArray[] = [
             'ProductNumberShop' => $assoc['ProductNumberShop'],
             'Title'             => $title,
             'ID'                => $assoc['SilvercartProductID'],
             'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
             'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
             'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
-        );
+        ];
     }
     SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
     $result->close();
@@ -170,29 +172,26 @@ exit();
  * @since 28.10.2013
  * @license none
  */
-class SilvercartSearchAutocompletion {
-    
+class SilvercartSearchAutocompletion
+{
     /**
      * Results limit
      *
      * @var int
      */
     public static $resultsLimit = 20;
-    
     /**
      * Locale
      *
      * @var string
      */
     public static $locale = 'de_DE';
-    
     /**
      * Price field
      *
      * @var string
      */
     public static $priceField = 'PriceGrossAmount';
-    
     /**
      * currency field
      *
@@ -209,12 +208,10 @@ class SilvercartSearchAutocompletion {
      * @param array  $ignoreProductIDs List of product IDs to ignore
      * 
      * @return void
-     *
-     * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 22.01.2018
      */
-    public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli, $ignoreProductIDs) {
-        $searchTermParts    = explode(' ', $searchTerm);
+    public static function addAdditionalResults(&$resultArray, $searchTerm, $mysqli, $ignoreProductIDs) : void
+    {
+        $searchTermParts = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $finalizedSearchTerm = sprintf(
                     '
@@ -263,19 +260,18 @@ class SilvercartSearchAutocompletion {
                 self::extend('addToTitle', $assoc, $addToTitle, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
                 $title = $assoc['Title'] . $addToTitle;
                 self::extend('updateTitle', $title, $assoc, $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli);
-                $resultArray[] = array(
+                $resultArray[] = [
                     'ProductNumberShop' => $assoc['ProductNumberShop'],
                     'Title'             => $title,
                     'ID'                => $assoc['SilvercartProductID'],
                     'Price'             => number_format($assoc[SilvercartSearchAutocompletion::$priceField], 2, ',', '.'),
                     'Currency'          => SilvercartSearchAutocompletion::nice_currency($assoc[SilvercartSearchAutocompletion::$currencyField]),
                     'PriceNice'         => SilvercartSearchAutocompletion::nice_money($assoc[SilvercartSearchAutocompletion::$priceField], $assoc[SilvercartSearchAutocompletion::$currencyField]),
-                );
+                ];
                 SilvercartSearchAutocompletion::extend('updateResults', $resultArray, $assoc);
             }
             $result->close();
         }
-        
         self::extend('addSearchResults', $searchTerm, SilvercartSearchAutocompletion::$locale, $mysqli, $resultArray);
     }
     
@@ -294,11 +290,9 @@ class SilvercartSearchAutocompletion {
      * @return void
      * 
      * @global array $searchAutoCompletionExtensions
-     * 
-     * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 16.12.2016
      */
-    public static function extend($method, &$a1=null, &$a2=null, &$a3=null, &$a4=null, &$a5=null, &$a6=null, &$a7=null) {
+    public static function extend($method, &$a1=null, &$a2=null, &$a3=null, &$a4=null, &$a5=null, &$a6=null, &$a7=null) : void
+    {
         global $searchAutoCompletionExtensions;
         if (!is_array($searchAutoCompletionExtensions)) {
             $searchAutoCompletionExtensions = [];
@@ -321,10 +315,9 @@ class SilvercartSearchAutocompletion {
      * @return void
      *
      * @global array $searchAutoCompletionExtensions
-     * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 28.02.2018
      */
-    public static function add_extension($extension, $path) {
+    public static function add_extension($extension, $path) : void
+    {
         global $searchAutoCompletionExtensions;
         if (!is_array($searchAutoCompletionExtensions)) {
             $searchAutoCompletionExtensions = [];
@@ -341,59 +334,52 @@ class SilvercartSearchAutocompletion {
      * @param string $currency Currency string
      * @param array  $options  Additional options
      * 
-	 * @return string
-     * 
-     * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 16.12.2016
-	 */
-	public static function nice_money($amount, $currency, $options = array()) {
+     * @return string
+     */
+    public static function nice_money($amount, $currency, $options = []) : string
+    {
         $includePath = get_include_path();
         $includePath = $includePath . PATH_SEPARATOR . str_replace(self::get_module_name(), '', getcwd()) . 'framework/thirdparty/';
         set_include_path($includePath);
         require_once 'Zend/Currency.php';
-		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
+        $currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
         if (!isset($options['display'])) {
             $options['display'] = Zend_Currency::USE_SYMBOL;
         }
-		if (!isset($options['currency'])) {
+        if (!isset($options['currency'])) {
             $options['currency'] = $currency;
         }
-		if (!isset($options['symbol'])) {
-			$options['symbol'] = $currencyLib->getSymbol($options['currency'], SilvercartSearchAutocompletion::$locale);
-		}
-		return (is_numeric($amount)) ? $currencyLib->toCurrency($amount, $options) : '';
-	}
-    
-	/**
+        if (!isset($options['symbol'])) {
+            $options['symbol'] = $currencyLib->getSymbol($options['currency'], SilvercartSearchAutocompletion::$locale);
+        }
+        return (is_numeric($amount)) ? $currencyLib->toCurrency($amount, $options) : '';
+    }
+
+    /**
      * Returns a money (price) string in a nice format dependant on the current locale.
      * 
      * @param string $currency Currency string
      * 
-	 * @return string
-     * 
-     * @author Sebastian Diel <sdiel@pixeltricks.de>
-     * @since 16.12.2016
-	 */
-	public static function nice_currency($currency) {
+     * @return string
+     */
+    public static function nice_currency(string $currency) : string
+    {
         $includePath = get_include_path();
         $includePath = $includePath . PATH_SEPARATOR . str_replace(self::get_module_name(), '', getcwd()) . 'framework/thirdparty/';
         set_include_path($includePath);
         require_once 'Zend/Currency.php';
-		$currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
-		return $currencyLib->getSymbol($currency, SilvercartSearchAutocompletion::$locale);
-	}
+        $currencyLib = new Zend_Currency(null, SilvercartSearchAutocompletion::$locale);
+        return $currencyLib->getSymbol($currency, SilvercartSearchAutocompletion::$locale);
+    }
     
     /**
-     * Returns the module name of the given working directory context.
-     * If there is no working directory context given, the module name will be
-     * determined dynamically by debug_backtrace().
-     * 
-     * @param string $contextWorkingDirectory Context working directory of the calling class
+     * Returns the module name.
      * 
      * @return string
      */
-    public static function get_module_name() {
-        return array_pop(explode('/', __DIR__));
+    public static function get_module_name() : string
+    {
+        $parts = explode('/', __DIR__);
+        return array_pop($parts);
     }
-    
 }
