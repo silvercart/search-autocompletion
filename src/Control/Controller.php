@@ -131,10 +131,13 @@ class Controller extends BaseController
             $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
                             . "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
                             . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%'";
+                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm2}%'";
         } else {
             $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%'";
+                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
         }
         $this->extend('updateWhereClause', $whereClause, $searchTerm);
         return $whereClause;
