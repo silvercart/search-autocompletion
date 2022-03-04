@@ -3,6 +3,7 @@
 namespace SilverCart\Search\Autocompletion\Control;
 
 use SilverCart\Model\Product\Product;
+use SilverCart\Model\Product\ProductTranslation;
 use SilverStripe\Control\Controller as BaseController;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\ORM\ArrayList;
@@ -124,21 +125,24 @@ class Controller extends BaseController
      */
     protected function getWhereClause(string $searchTerm, string $likePrefix = '') : string
     {
-        $searchTerm      = addslashes($searchTerm);
-        $searchTermParts = explode(' ', $searchTerm);
+        $productTable            = Product::config()->table_name;
+        $productTranslationTable = ProductTranslation::config()->table_name;
+        $searchTerm              = addslashes($searchTerm);
+        $searchTermParts         = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $searchTerm2 = implode('%', $searchTermParts);
-            $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
-                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%' OR "
-                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm2}%'";
+            $whereClause = "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm2}%'";
         } else {
-            $whereClause = "SilvercartProductTranslation.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "SilvercartProduct.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
+            $whereClause = "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
         }
+        $whereClause = "{$productTable}.HideFromSearchResults = false AND ({$whereClause})";
         $this->extend('updateWhereClause', $whereClause, $searchTerm);
         return $whereClause;
     }
