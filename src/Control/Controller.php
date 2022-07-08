@@ -142,8 +142,8 @@ class Controller extends BaseController
                             . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
                             . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
         }
+        $this->extend('updateWhereClause', $whereClause, $searchTerm, $likePrefix);
         $whereClause = "{$productTable}.HideFromSearchResults = false AND ({$whereClause})";
-        $this->extend('updateWhereClause', $whereClause, $searchTerm);
         return $whereClause;
     }
     
