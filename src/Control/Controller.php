@@ -125,25 +125,25 @@ class Controller extends BaseController
      */
     protected function getWhereClause(string $searchTerm, string $likePrefix = '') : string
     {
-        $productTable            = Product::config()->table_name;
-        $productTranslationTable = ProductTranslation::config()->table_name;
-        $searchTerm              = addslashes($searchTerm);
-        $searchTermParts         = explode(' ', $searchTerm);
+        $productStageTable            = Product::singleton()->getStageTableName();
+        $productTranslationStageTable = ProductTranslation::singleton()->getStageTableName();
+        $searchTerm                   = addslashes($searchTerm);
+        $searchTermParts              = explode(' ', $searchTerm);
         if (count($searchTermParts) > 1) {
             $searchTerm2 = implode('%', $searchTermParts);
-            $whereClause = "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
-                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%' OR "
-                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm2}%'";
+            $whereClause = "{$productTranslationStageTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productTranslationStageTable}.Title LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "{$productStageTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productStageTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm2}%' OR "
+                            . "{$productStageTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productStageTable}.Keywords LIKE '{$likePrefix}{$searchTerm2}%'";
         } else {
-            $whereClause = "{$productTranslationTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "{$productTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
-                            . "{$productTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
+            $whereClause = "{$productTranslationStageTable}.Title LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productStageTable}.ProductNumberShop LIKE '{$likePrefix}{$searchTerm}%' OR "
+                            . "{$productStageTable}.Keywords LIKE '{$likePrefix}{$searchTerm}%'";
         }
         $this->extend('updateWhereClause', $whereClause, $searchTerm, $likePrefix);
-        $whereClause = "{$productTable}.HideFromSearchResults = false AND ({$whereClause})";
+        $whereClause = "{$productStageTable}.HideFromSearchResults = false AND ({$whereClause})";
         return $whereClause;
     }
     
